@@ -404,24 +404,13 @@
     // TikTok Purchase event
     if (window.ttq) ttq.track('PlaceAnOrder', { value: parseFloat(data.total.replace('€','')), currency: 'EUR', contents: [{ content_id: 'lashlux-pro', content_name: data.style, quantity: parseInt(data.quantity) }] });
 
-    // Send order to email via Formspree (update FORM_ID after creating account)
-    fetch('https://formspree.io/f/FORMSPREE_FORM_ID', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(data)
-    }).then(function(r) {
-      if (r.ok) {
-        document.getElementById('formView').style.display = 'none';
-        document.getElementById('successView').style.display = 'block';
-      } else {
-        // Fallback: send via mailto
-        var body = Object.entries(data).map(function(kv) { return kv[0] + ': ' + kv[1]; }).join('\n');
-        window.location.href = 'mailto:william@novadropelite.com?subject=New Order: ' + encodeURIComponent(data.style) + '&body=' + encodeURIComponent(body);
-      }
-    }).catch(function() {
-      var body = Object.entries(data).map(function(kv) { return kv[0] + ': ' + kv[1]; }).join('\n');
-      window.location.href = 'mailto:william@novadropelite.com?subject=New Order: ' + encodeURIComponent(data.style) + '&body=' + encodeURIComponent(body);
-    });
+    // Show success immediately, then open email client for order notification
+    document.getElementById('formView').style.display = 'none';
+    document.getElementById('successView').style.display = 'block';
+    var body = 'NEW ORDER\n\n' + Object.entries(data).map(function(kv) { return kv[0].toUpperCase() + ': ' + kv[1]; }).join('\n');
+    setTimeout(function() {
+      window.open('mailto:william@novadropelite.com?subject=' + encodeURIComponent('New Order: ' + data.style + ' x' + data.quantity) + '&body=' + encodeURIComponent(body), '_blank');
+    }, 800);
   }
 
   // Fire ViewContent on page load
